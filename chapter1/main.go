@@ -42,3 +42,40 @@ func noDuplication3(str string) bool {
 	}
 	return true
 }
+
+// 1.2順列チェック
+func isPermutation(str1, str2 string) bool {
+	if len(str1) != len(str2) {
+		return false
+	}
+
+	arr1 := []int32(str1)
+	sort.Slice(arr1, func(i int, j int) bool { return arr1[i] < arr1[j]})
+
+	arr2 := []int32(str2)
+	sort.Slice(arr2, func(i int, j int) bool { return arr2[i] < arr2[j]})
+
+	for i := 0; i < len(arr1); i++ {
+		if arr1[i] != arr2[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func isPermutation2(str1, str2 string) bool {
+	if len(str1) != len(str2) {
+		return false
+	}
+	m := map[int32]int{}
+	for _, v := range str1 {
+		m[v]++
+	}
+	for _, v := range str2 {
+		m[v]--
+		if m[v] < 0 {
+			return false
+		}
+	}
+	return true
+}
