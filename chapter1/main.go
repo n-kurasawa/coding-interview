@@ -6,10 +6,7 @@ import (
 )
 
 func main() {
-	str := []rune("Mr John Smith                     ")
-	fmt.Println(string(str))
-	urlify(str, 13)
-	fmt.Println(string(str))
+	fmt.Println(isPermutationOfPalindrome("tacocatt"))
 }
 
 // 1.1 重複のない文字列
@@ -105,4 +102,22 @@ func urlify(str []rune, length int) {
 			index--
 		}
 	}
+}
+
+// 1.4 回文の順列
+func isPermutationOfPalindrome(str string) bool {
+	m := map[rune]bool{}
+	for _, str := range str {
+		m[str] = !m[str]
+	}
+	var count int
+	for _, v := range m {
+		if v {
+			count++
+			if count > 1 {
+				return false
+			}
+		}
+	}
+	return true
 }
