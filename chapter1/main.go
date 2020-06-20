@@ -1,10 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"sort"
 )
 
 func main() {
+	str := []rune("Mr John Smith                     ")
+	fmt.Println(string(str))
+	urlify(str, 13)
+	fmt.Println(string(str))
 }
 
 // 1.1 重複のない文字列
@@ -78,4 +83,26 @@ func isPermutation2(str1, str2 string) bool {
 		}
 	}
 	return true
+}
+
+// 1.3 URLify
+func urlify(str []rune, length int) {
+	var blank int
+	for i := 0; i < length; i++ {
+		if str[i] == ' ' {
+			blank++
+		}
+	}
+	index := length + blank * 2
+	for i := length - 1; i > -1; i-- {
+		if str[i] == ' ' {
+			str[index-1] = '0'
+			str[index-2] = '2'
+			str[index-3] = '%'
+			index -= 3
+		} else {
+			str[index-1] = str[i]
+			index--
+		}
+	}
 }
