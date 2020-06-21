@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"sort"
+	"strconv"
 )
 
 func main() {
-	fmt.Println(oneChange("pale", "ple"))
-	fmt.Println(oneChange("pales", "pale"))
-	fmt.Println(oneChange("pale", "bale"))
-	fmt.Println(oneChange("pale", "bake"))
+	fmt.Println(compress("aabccccccaaaa"))
 }
 
 // 1.1 重複のない文字列
@@ -163,4 +161,25 @@ func oneReplace(str1, str2 string) bool {
 		}
 	}
 	return true
+}
+
+// 1.6 文字列圧縮
+func compress(str string) string {
+	var tmp rune
+	var tmpIndex int
+	var result []byte
+	for i, v := range str {
+		if tmp != v {
+			if tmp != 0 {
+				result = append(result, string(tmp) + strconv.Itoa(i-tmpIndex)...)
+			}
+			tmp = v
+			tmpIndex = i
+		}
+	}
+	result = append(result, string(tmp) + strconv.Itoa(len(str) - tmpIndex)...)
+	if len(str) < len(result) {
+		return str
+	}
+	return string(result)
 }
