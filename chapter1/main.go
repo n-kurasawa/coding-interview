@@ -6,7 +6,10 @@ import (
 )
 
 func main() {
-	fmt.Println(isPermutationOfPalindrome("tacocatt"))
+	fmt.Println(oneChange("pale", "ple"))
+	fmt.Println(oneChange("pales", "pale"))
+	fmt.Println(oneChange("pale", "bale"))
+	fmt.Println(oneChange("pale", "bake"))
 }
 
 // 1.1 重複のない文字列
@@ -117,6 +120,46 @@ func isPermutationOfPalindrome(str string) bool {
 			if count > 1 {
 				return false
 			}
+		}
+	}
+	return true
+}
+
+// 1.5 一発変換
+func oneChange(str1, str2 string) bool {
+	length1 := len(str1)
+	length2 := len(str2)
+	if length1 == length2 {
+		return oneReplace(str1, str2)
+	} else if (length1 - length2) == 1 {
+		return oneAdd(str2, str1)
+	} else if (length2 - length1) == 1 {
+		return oneAdd(str1, str2)
+	}
+	return false
+}
+
+func oneAdd(short, long string) bool {
+	diff := 0
+	for i := 0; i < len(short); i++ {
+		if short[i] != long[i + diff] {
+			if diff != 0 {
+				return false
+			}
+			diff++
+		}
+	}
+	return true
+}
+
+func oneReplace(str1, str2 string) bool {
+	diff := 0
+	for i := 0; i < len(str1); i++ {
+		if str1[i] != str2[i] {
+			if diff > 0 {
+				return false
+			}
+			diff++
 		}
 	}
 	return true
