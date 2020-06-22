@@ -2,26 +2,19 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 	"sort"
 	"strconv"
 )
 
 func main() {
 	matrix := [][]int{
-		{1, 2, 3, 4},
+		{1, 2, 0, 4},
 		{5, 6, 7, 8},
-		{9, 10, 11, 12},
+		{9, 0, 11, 12},
 		{13, 14, 15, 16},
 	}
-	rotate(matrix)
-	expected := [][]int{
-		{13, 9, 5, 1},
-		{14, 10, 6, 2},
-		{15, 11, 7, 3},
-		{16, 12, 8, 4},
-	}
-	fmt.Println(reflect.DeepEqual(matrix, expected))
+	setZeros(matrix)
+	fmt.Println(matrix)
 }
 
 // 1.1 重複のない文字列
@@ -219,4 +212,43 @@ func rotate(matrix [][]int) bool {
 		}
 	}
 	return true
+}
+
+// 1.8 0の行列
+func setZeros(matrix [][]int) {
+	row := make([]bool, len(matrix))
+	column := make([]bool, len(matrix[0]))
+
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[0]); j++ {
+			if matrix[i][j] == 0 {
+				row[i] = true
+				column[j] = true
+			}
+		}
+	}
+
+	for i, v := range row {
+		if v {
+			nullifyRow(matrix, i)
+		}
+	}
+
+	for i, v := range column {
+		if v {
+			nullifyColumn(matrix, i)
+		}
+	}
+}
+
+func nullifyRow(matrix [][]int, row int) {
+	for i := 0; i < len(matrix[0]); i++ {
+		matrix[row][i] = 0
+	}
+}
+
+func nullifyColumn(matrix [][]int, col int) {
+	for i := 0; i < len(matrix); i++ {
+		matrix[i][col] = 0
+	}
 }
