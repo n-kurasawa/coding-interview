@@ -2,12 +2,26 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
 	"strconv"
 )
 
 func main() {
-	fmt.Println(compress("aabccccccaaaa"))
+	matrix := [][]int{
+		{1, 2, 3, 4},
+		{5, 6, 7, 8},
+		{9, 10, 11, 12},
+		{13, 14, 15, 16},
+	}
+	rotate(matrix)
+	expected := [][]int{
+		{13, 9, 5, 1},
+		{14, 10, 6, 2},
+		{15, 11, 7, 3},
+		{16, 12, 8, 4},
+	}
+	fmt.Println(reflect.DeepEqual(matrix, expected))
 }
 
 // 1.1 重複のない文字列
@@ -25,7 +39,7 @@ func noDuplication(str string) bool {
 func noDuplication2(str string) bool {
 	length := len(str)
 	for i := 0; i < length; i++ {
-		for j := i+1; j < length; j++ {
+		for j := i + 1; j < length; j++ {
 			if str[i] == str[j] {
 				return false
 			}
@@ -36,9 +50,9 @@ func noDuplication2(str string) bool {
 
 func noDuplication3(str string) bool {
 	arr := []int32(str)
-	sort.Slice(arr, func(i int, j int) bool { return arr[i] < arr[j]})
+	sort.Slice(arr, func(i int, j int) bool { return arr[i] < arr[j] })
 
-	for i := 0; i + 1 < len(arr); i++ {
+	for i := 0; i+1 < len(arr); i++ {
 		if arr[i] == arr[i+1] {
 			return false
 		}
@@ -53,10 +67,10 @@ func isPermutation(str1, str2 string) bool {
 	}
 
 	arr1 := []int32(str1)
-	sort.Slice(arr1, func(i int, j int) bool { return arr1[i] < arr1[j]})
+	sort.Slice(arr1, func(i int, j int) bool { return arr1[i] < arr1[j] })
 
 	arr2 := []int32(str2)
-	sort.Slice(arr2, func(i int, j int) bool { return arr2[i] < arr2[j]})
+	sort.Slice(arr2, func(i int, j int) bool { return arr2[i] < arr2[j] })
 
 	for i := 0; i < len(arr1); i++ {
 		if arr1[i] != arr2[i] {
@@ -91,7 +105,7 @@ func urlify(str []rune, length int) {
 			blank++
 		}
 	}
-	index := length + blank * 2
+	index := length + blank*2
 	for i := length - 1; i > -1; i-- {
 		if str[i] == ' ' {
 			str[index-1] = '0'
@@ -140,7 +154,7 @@ func oneChange(str1, str2 string) bool {
 func oneAdd(short, long string) bool {
 	diff := 0
 	for i := 0; i < len(short); i++ {
-		if short[i] != long[i + diff] {
+		if short[i] != long[i+diff] {
 			if diff != 0 {
 				return false
 			}
@@ -171,15 +185,38 @@ func compress(str string) string {
 	for i, v := range str {
 		if tmp != v {
 			if tmp != 0 {
-				result = append(result, string(tmp) + strconv.Itoa(i-tmpIndex)...)
+				result = append(result, string(tmp)+strconv.Itoa(i-tmpIndex)...)
 			}
 			tmp = v
 			tmpIndex = i
 		}
 	}
-	result = append(result, string(tmp) + strconv.Itoa(len(str) - tmpIndex)...)
+	result = append(result, string(tmp)+strconv.Itoa(len(str)-tmpIndex)...)
 	if len(str) < len(result) {
 		return str
 	}
 	return string(result)
+}
+
+// 1.7 行列の回転
+func rotate(matrix [][]int) bool {
+	if len(matrix) == 0 || len(matrix) != len(matrix[0]) {
+		return false
+	}
+	n := len(matrix)
+	for layer := 0; layer < n/2; layer++ {
+		first := layer
+		last := n - 1 - layer
+		fmt.Printf("layer: %v, first: %v, last: %v \n", layer, first, last)
+		for i := first; i < last; i++ {
+			offset := i - first
+			top := matrix[first][i]
+
+			matrix[first][i] = matrix[last-offset][first]
+			matrix[last-offset][first] = matrix[last][last-offset]
+			matrix[last][last-offset] = matrix[i][last]
+			matrix[i][last] = top
+		}
+	}
+	return true
 }
