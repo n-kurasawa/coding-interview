@@ -4,17 +4,11 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 func main() {
-	matrix := [][]int{
-		{1, 2, 0, 4},
-		{5, 6, 7, 8},
-		{9, 0, 11, 12},
-		{13, 14, 15, 16},
-	}
-	setZeros(matrix)
-	fmt.Println(matrix)
+	fmt.Println(isRotate("abcdef", "cdefab"))
 }
 
 // 1.1 重複のない文字列
@@ -251,4 +245,17 @@ func nullifyColumn(matrix [][]int, col int) {
 	for i := 0; i < len(matrix); i++ {
 		matrix[i][col] = 0
 	}
+}
+
+// 1.9 文字列の回転
+func isSubstring(str1, str2 string) bool {
+	return strings.Contains(str1, str2)
+}
+
+func isRotate(str1, str2 string) bool {
+	if len(str1) != len(str2) {
+		return false
+	}
+
+	return isSubstring(str1+str1, str2)
 }
