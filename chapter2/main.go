@@ -11,8 +11,8 @@ func main() {
 	node6 := &node{next: node5, value: 6}
 	node7 := &node{next: node6, value: 7}
 	showAll(node7)
-	node, _ := getFromBack(node7, 3)
-	fmt.Println(node.value)
+	deleteNode(node4)
+	showAll(node7)
 }
 
 func showAll(node *node) {
@@ -70,4 +70,14 @@ func getFromBack(head *node, index int) (*node, int) {
 	} else {
 		return node, i
 	}
+}
+
+// 2.3 間の要素を削除
+func deleteNode(n *node) {
+	if n == nil || n.next == nil {
+		return
+	}
+
+	n.value = n.next.value
+	n.next = n.next.next
 }
