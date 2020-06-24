@@ -6,13 +6,13 @@ func main() {
 	node1 := &node{next: nil, value: 1}
 	node2 := &node{next: node1, value: 2}
 	node3 := &node{next: node2, value: 3}
-	node4 := &node{next: node3, value: 3}
+	node4 := &node{next: node3, value: 4}
 	node5 := &node{next: node4, value: 5}
-	node6 := &node{next: node5, value: 5}
-	node7 := &node{next: node6, value: 1}
+	node6 := &node{next: node5, value: 6}
+	node7 := &node{next: node6, value: 7}
 	showAll(node7)
-	deleteDuplication2(node7)
-	showAll(node7)
+	node, _ := getFromBack(node7, 3)
+	fmt.Println(node.value)
 }
 
 func showAll(node *node) {
@@ -54,5 +54,20 @@ func deleteDuplication2(head *node) {
 			previous = n
 		}
 		n = n.next
+	}
+}
+
+// 2.2 後ろからK番目を返す
+func getFromBack(head *node, index int) (*node, int) {
+	if head == nil {
+		return nil, 0
+	}
+
+	node, i := getFromBack(head.next, index)
+	i++
+	if i == index {
+		return head, i
+	} else {
+		return node, i
 	}
 }
