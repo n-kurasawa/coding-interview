@@ -5,14 +5,14 @@ import "fmt"
 func main() {
 	node1 := &node{next: nil, value: 1}
 	node2 := &node{next: node1, value: 2}
-	node3 := &node{next: node2, value: 3}
-	node4 := &node{next: node3, value: 4}
-	node5 := &node{next: node4, value: 5}
-	node6 := &node{next: node5, value: 6}
-	node7 := &node{next: node6, value: 7}
+	node3 := &node{next: node2, value: 10}
+	node4 := &node{next: node3, value: 5}
+	node5 := &node{next: node4, value: 8}
+	node6 := &node{next: node5, value: 5}
+	node7 := &node{next: node6, value: 3}
 	showAll(node7)
-	deleteNode(node4)
-	showAll(node7)
+	node := divideList2(node7, 5)
+	showAll(node)
 }
 
 func showAll(node *node) {
@@ -80,4 +80,56 @@ func deleteNode(n *node) {
 
 	n.value = n.next.value
 	n.next = n.next.next
+}
+
+// 2.4 リストの分割
+func divideList(head *node, divide int) *node {
+	var beforeHead *node
+	var before *node
+	var afterHead *node
+	var after *node
+	n := head
+	for n != nil {
+		if n.value < divide {
+			if before == nil {
+				beforeHead = n
+				before = n
+			} else {
+				before.next = n
+				before = n
+			}
+		} else {
+			if after == nil {
+				afterHead = n
+				after = n
+			} else {
+				after.next = n
+				after = n
+			}
+		}
+		n = n.next
+	}
+	after.next = nil
+	before.next = afterHead
+	return beforeHead
+}
+
+func divideList2(n *node, divide int) *node {
+	head := n
+	tail := n
+
+	p := n
+	for p != nil {
+		next := p.next
+		if p.value < divide {
+			p.next = head
+			head = p
+		} else {
+			tail.next = p
+			tail = p
+		}
+		p = next
+	}
+	tail.next = nil
+	return head
 }
