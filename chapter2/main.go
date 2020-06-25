@@ -3,15 +3,16 @@ package main
 import "fmt"
 
 func main() {
-	node1 := &node{next: nil, value: 1}
-	node2 := &node{next: node1, value: 2}
-	node3 := &node{next: node2, value: 10}
-	node4 := &node{next: node3, value: 5}
-	node5 := &node{next: node4, value: 8}
-	node6 := &node{next: node5, value: 5}
-	node7 := &node{next: node6, value: 3}
+	node1 := &node{next: nil, value: 7}
+	node2 := &node{next: node1, value: 1}
+	node3 := &node{next: node2, value: 6}
+
+	node5 := &node{next: nil, value: 5}
+	node6 := &node{next: node5, value: 9}
+	node7 := &node{next: node6, value: 2}
+	showAll(node3)
 	showAll(node7)
-	node := divideList2(node7, 5)
+	node := sum2(node3, node7)
 	showAll(node)
 }
 
@@ -131,5 +132,96 @@ func divideList2(n *node, divide int) *node {
 		p = next
 	}
 	tail.next = nil
+	return head
+}
+
+// 2.5 リストで著された2数の和
+func sum(head1, head2 *node, carry int) *node {
+	if head1 == nil && head2 == nil && carry == 0 {
+		return nil
+	}
+	num := carry
+	var next1 *node
+	if head1 != nil {
+		num += head1.value
+		next1 = head1.next
+	}
+	var next2 *node
+	if head2 != nil {
+		num += head2.value
+		next2 = head2.next
+	}
+	var nextCarry int
+	if num > 9 {
+		nextCarry = 1
+	}
+	var result *node
+	if next1 != nil || next2 != nil {
+		result = sum(next1, next2, nextCarry)
+	}
+
+	return &node{
+		value: num % 10,
+		next:  result,
+	}
+}
+
+// 2.5 発展
+func sum2(head1, head2 *node) *node {
+	len1 := length(head1)
+	len2 := length(head2)
+
+	if len1 < len2 {
+		head1 = padList(head1, len2-len1)
+	} else {
+		head2 = padList(head2, len1-len2)
+	}
+
+	result, carry := sumHelper(head1, head2)
+	if carry > 0 {
+		return &node{
+			value: 1,
+			next:  result,
+		}
+	}
+	return result
+}
+
+func sumHelper(head1, head2 *node) (*node, int) {
+	if head1 == nil && head2 == nil {
+		return nil, 0
+	}
+
+	result, carry := sumHelper(head1.next, head2.next)
+
+	sum := carry + head1.value + head2.value
+	var nextCarry int
+	if sum > 9 {
+		nextCarry = 1
+	}
+	return &node{
+		value: sum % 10,
+		next:  result,
+	}, nextCarry
+
+}
+
+func length(head *node) int {
+	var count int
+	for head != nil {
+		count++
+		head = head.next
+	}
+	return count
+}
+
+func padList(head *node, num int) *node {
+	for i := 0; i < num; i++ {
+		n := &node{
+			value: 0,
+			next:  head,
+		}
+		head = n
+	}
 	return head
 }
