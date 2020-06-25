@@ -1,19 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/golang-collections/collections/stack"
+)
 
 func main() {
 	node1 := &node{next: nil, value: 7}
 	node2 := &node{next: node1, value: 1}
 	node3 := &node{next: node2, value: 6}
-
-	node5 := &node{next: nil, value: 5}
-	node6 := &node{next: node5, value: 9}
-	node7 := &node{next: node6, value: 2}
-	showAll(node3)
-	showAll(node7)
-	node := sum2(node3, node7)
-	showAll(node)
+	node4 := &node{next: node3, value: 1}
+	node5 := &node{next: node4, value: 7}
+	showAll(node5)
+	fmt.Println(isPalindrome3(node5))
 }
 
 func showAll(node *node) {
@@ -224,4 +224,82 @@ func padList(head *node, num int) *node {
 		head = n
 	}
 	return head
+}
+
+// 2.6 回文
+func isPalindrome(head *node) bool {
+	reverseNode := reverse(head)
+	return isEqual(head, reverseNode)
+}
+
+func reverse(n *node) *node {
+	var head *node
+	for n != nil {
+		newNode := &node{
+			value: n.value,
+			next:  n.next,
+		}
+		newNode.next = head
+		head = newNode
+		n = n.next
+	}
+	return head
+}
+
+func isEqual(head1, head2 *node) bool {
+	for head1 != nil && head2 != nil {
+		if head1.value != head2.value {
+			return false
+		}
+		head1 = head1.next
+		head2 = head2.next
+	}
+	return head1 == nil && head2 == nil
+}
+
+func isPalindrome2(head *node) bool {
+	fast := head
+	slow := head
+	s := stack.New()
+
+	for fast != nil && fast.next != nil {
+		s.Push(slow)
+		slow = slow.next
+		fast = fast.next.next
+	}
+
+	if fast != nil {
+		slow = slow.next
+	}
+
+	for slow != nil {
+		top := s.Pop().(*node)
+		if slow.value != top.value {
+			return false
+		}
+		slow = slow.next
+	}
+	return true
+}
+
+func isPalindrome3(head *node) bool {
+	length := length(head)
+	_, result := isPalindromeHelper(head, length)
+	return result
+}
+
+func isPalindromeHelper(head *node, length int) (*node, bool) {
+	if head == nil || length <= 0 {
+		return head, true
+	} else if length == 1 {
+		return head.next, true
+	}
+
+	n, result := isPalindromeHelper(head.next, length-2)
+
+	if n == nil || !result || n.value != head.value {
+		return nil, false
+	}
+
+	return n.next, true
 }
