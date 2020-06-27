@@ -7,27 +7,26 @@ import (
 )
 
 func main() {
-	node1 := &node{next: nil, value: 7}
-	node2 := &node{next: node1, value: 1}
-	node3 := &node{next: node2, value: 6}
-	node4 := &node{next: node3, value: 1}
-	node5 := &node{next: node4, value: 7}
-
-	node6 := &node{next: node3, value: 11}
-	node7 := &node{next: node6, value: 17}
-	node8 := &node{next: node7, value: 18}
-	node9 := &node{next: node8, value: 19}
-	showAll(node5)
-	showAll(node9)
-	node := commonNode(node5, node9)
-	showAll(node)
+	node1 := &node{next: nil, value: 1}
+	node2 := &node{next: node1, value: 2}
+	node3 := &node{next: node2, value: 3}
+	node4 := &node{next: node3, value: 4}
+	node5 := &node{next: node4, value: 5}
+	node6 := &node{next: node5, value: 6}
+	node7 := &node{next: node6, value: 7}
+	node8 := &node{next: node7, value: 8}
+	node1.next = node3
+	node := loopNode2(node8)
+	fmt.Println(node.value)
 }
 
 func showAll(node *node) {
 	p := node
-	for p != nil {
+	var i int
+	for p != nil && i < 15 {
 		fmt.Printf("%v, ", p.value)
 		p = p.next
+		i++
 	}
 	fmt.Println("")
 }
@@ -352,4 +351,39 @@ func removeNode(head *node, num int) *node {
 		head = head.next
 	}
 	return head
+}
+
+// 2.8 ループの検出
+func loopNode(head *node) *node {
+	m := map[*node]bool{}
+	for {
+		if m[head] {
+			return head
+		}
+		m[head] = true
+		head = head.next
+	}
+}
+
+func loopNode2(head *node) *node {
+	slow := head
+	fast := head
+
+	for fast != nil && fast.next != nil {
+		slow = slow.next
+		fast = fast.next.next
+		if slow == fast {
+			break
+		}
+	}
+	if fast == nil || fast.next == nil {
+		return nil
+	}
+
+	slow = head
+	for slow != fast {
+		slow = slow.next
+		fast = fast.next
+	}
+	return slow
 }
