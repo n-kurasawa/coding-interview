@@ -12,8 +12,15 @@ func main() {
 	node3 := &node{next: node2, value: 6}
 	node4 := &node{next: node3, value: 1}
 	node5 := &node{next: node4, value: 7}
+
+	node6 := &node{next: node3, value: 11}
+	node7 := &node{next: node6, value: 17}
+	node8 := &node{next: node7, value: 18}
+	node9 := &node{next: node8, value: 19}
 	showAll(node5)
-	fmt.Println(isPalindrome3(node5))
+	showAll(node9)
+	node := commonNode(node5, node9)
+	showAll(node)
 }
 
 func showAll(node *node) {
@@ -302,4 +309,47 @@ func isPalindromeHelper(head *node, length int) (*node, bool) {
 	}
 
 	return n.next, true
+}
+
+// 2.7 共通するノード
+func commonNode(head1, head2 *node) *node {
+	n1 := head1
+	var len1 int
+	for n1 != nil {
+		len1++
+		n1 = n1.next
+	}
+
+	n2 := head2
+	var len2 int
+	for n2 != nil {
+		len2++
+		n2 = n2.next
+	}
+
+	if n1 != n2 {
+		return nil
+	}
+
+	if len1 < len2 {
+		head2 = removeNode(head2, len2-len1)
+	} else if len2 < len1 {
+		head1 = removeNode(head1, len1-len2)
+	}
+
+	for i := 0; head1 != nil && head2 != nil; i++ {
+		if head1 == head2 {
+			return head1
+		}
+		head1 = head1.next
+		head2 = head2.next
+	}
+	return nil
+}
+
+func removeNode(head *node, num int) *node {
+	for i := 0; i < num; i++ {
+		head = head.next
+	}
+	return head
 }
