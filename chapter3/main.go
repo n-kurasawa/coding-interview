@@ -1,10 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+
+	"github.com/golang-collections/collections/stack"
+)
 
 func main() {
-	arr := make([]int, 0, 10)
-	fmt.Println(arr[10])
+	s := newStackWithMin()
+	s.push(3)
+	s.push(4)
+	s.push(5)
+	fmt.Println(s.min())
+	s.push(1)
+	fmt.Println(s.min())
+	s.pop()
+	fmt.Println(s.min())
 }
 
 // 3.1 3つのスタック
@@ -63,4 +75,38 @@ func (s *FixedMultiStack) indexOfTop(stackNum int) int {
 	offset := stackNum * s.capacity
 	size := s.sizes[stackNum]
 	return offset + size - 1
+}
+
+// 3.2 最小値を返すスタック
+type stackWithMin struct {
+	*stack.Stack
+	minStack *stack.Stack
+}
+
+func newStackWithMin() *stackWithMin {
+	min := stack.New()
+	min.Push(math.MaxInt32)
+	return &stackWithMin{
+		stack.New(),
+		min,
+	}
+}
+
+func (s *stackWithMin) push(value int) {
+	if value <= s.minStack.Peek().(int) {
+		s.minStack.Push(value)
+	}
+	s.Stack.Push(value)
+}
+
+func (s *stackWithMin) pop() int {
+	value := s.Stack.Pop().(int)
+	if s.minStack.Peek().(int) == value {
+		s.minStack.Pop()
+	}
+	return value
+}
+
+func (s *stackWithMin) min() int {
+	return s.minStack.Peek().(int)
 }
