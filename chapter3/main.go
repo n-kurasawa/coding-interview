@@ -110,3 +110,31 @@ func (s *stackWithMin) pop() int {
 func (s *stackWithMin) min() int {
 	return s.minStack.Peek().(int)
 }
+
+// 積み上がっている皿
+type SetOfStack struct {
+	stacks *stack.Stack
+}
+
+func newSetOfStack() *SetOfStack {
+	return &SetOfStack{
+		stacks: stack.New(),
+	}
+}
+
+func (s *SetOfStack) push(value int) {
+	if s.stacks.Peek().(*stack.Stack).Len() > 100 {
+		s.stacks.Push(stack.New())
+	}
+	s.stacks.Peek().(*stack.Stack).Push(value)
+}
+
+func (s *SetOfStack) pop() (int, error) {
+	if s.stacks.Peek().(*stack.Stack).Len() == 0 {
+		s := s.stacks.Pop()
+		if s == nil {
+			return 0, fmt.Errorf("empty")
+		}
+	}
+	return s.stacks.Peek().(*stack.Stack).Pop().(int), nil
+}
