@@ -8,15 +8,19 @@ import (
 )
 
 func main() {
-	s := newStackWithMin()
-	s.push(3)
-	s.push(4)
-	s.push(5)
-	fmt.Println(s.min())
-	s.push(1)
-	fmt.Println(s.min())
-	s.pop()
-	fmt.Println(s.min())
+	q := newMyQueue()
+	q.add(1)
+	q.add(2)
+	q.add(3)
+	q.add(4)
+	q.add(5)
+	fmt.Println(q.remove())
+	fmt.Println(q.remove())
+	q.add(6)
+	fmt.Println(q.remove())
+	fmt.Println(q.remove())
+	q.add(7)
+	fmt.Println(q.remove())
 }
 
 // 3.1 3つのスタック
@@ -137,4 +141,35 @@ func (s *SetOfStack) pop() (int, error) {
 		}
 	}
 	return s.stacks.Peek().(*stack.Stack).Pop().(int), nil
+}
+
+// 3.4 スタックでキュー
+type myQueue struct {
+	stackNewest *stack.Stack
+	stackOldest *stack.Stack
+}
+
+func newMyQueue() *myQueue {
+	return &myQueue{
+		stackNewest: stack.New(),
+		stackOldest: stack.New(),
+	}
+}
+
+func (q *myQueue) add(value int) {
+	q.stackNewest.Push(value)
+}
+
+func (q *myQueue) remove() int {
+	q.shiftStack()
+	return q.stackOldest.Pop().(int)
+}
+
+func (q *myQueue) shiftStack() {
+	if q.stackOldest.Len() != 0 {
+		return
+	}
+	for q.stackNewest.Len() != 0 {
+		q.stackOldest.Push(q.stackNewest.Pop())
+	}
 }
