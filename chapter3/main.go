@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/golang-collections/collections/queue"
+
 	"github.com/golang-collections/collections/stack"
 )
 
@@ -189,5 +191,55 @@ func sortStack(s *stack.Stack) {
 	}
 	for r.Len() != 0 {
 		s.Push(r.Pop())
+	}
+}
+
+// 3.6 動物保護施設
+type animalType int
+
+const (
+	dog animalType = iota
+	cat
+)
+
+type animal struct {
+	order        int
+	typeOfAnimal animalType
+}
+
+type animalQueue struct {
+	dogQueue *queue.Queue
+	catQueue *queue.Queue
+	order    int
+}
+
+func newAnimalQueue() *animalQueue {
+	return &animalQueue{
+		dogQueue: queue.New(),
+		catQueue: queue.New(),
+		order:    0,
+	}
+}
+
+func (q *animalQueue) enqueue(a animal) {
+	q.order++
+	a.order = q.order
+	if a.typeOfAnimal == cat {
+		q.catQueue.Enqueue(a)
+	} else {
+		q.dogQueue.Enqueue(a)
+	}
+}
+
+func (q *animalQueue) dequeueAny() animal {
+	if q.dogQueue.Len() == 0 {
+		return q.catQueue.Dequeue().(animal)
+	} else if q.catQueue.Len() == 0 {
+		return q.dogQueue.Dequeue().(animal)
+	}
+	if q.dogQueue.Peek().(animal).order < q.catQueue.Peek().(animal).order {
+		return q.dogQueue.Dequeue().(animal)
+	} else {
+		return q.catQueue.Dequeue().(animal)
 	}
 }
