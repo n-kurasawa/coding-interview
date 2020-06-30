@@ -8,19 +8,22 @@ import (
 )
 
 func main() {
-	q := newMyQueue()
-	q.add(1)
-	q.add(2)
-	q.add(3)
-	q.add(4)
-	q.add(5)
-	fmt.Println(q.remove())
-	fmt.Println(q.remove())
-	q.add(6)
-	fmt.Println(q.remove())
-	fmt.Println(q.remove())
-	q.add(7)
-	fmt.Println(q.remove())
+	s := stack.New()
+	s.Push(3)
+	s.Push(5)
+	s.Push(1)
+	s.Push(10)
+	s.Push(4)
+	showAll(*s)
+	sortStack(s)
+	showAll(*s)
+}
+
+func showAll(s stack.Stack) {
+	for s.Len() != 0 {
+		fmt.Printf("%v, ", s.Pop().(int))
+	}
+	fmt.Println("")
 }
 
 // 3.1 3つのスタック
@@ -171,5 +174,20 @@ func (q *myQueue) shiftStack() {
 	}
 	for q.stackNewest.Len() != 0 {
 		q.stackOldest.Push(q.stackNewest.Pop())
+	}
+}
+
+// 3.5 スタックのソート
+func sortStack(s *stack.Stack) {
+	r := stack.New()
+	for s.Len() != 0 {
+		tmp := s.Pop()
+		for r.Len() != 0 && r.Peek().(int) >= tmp.(int) {
+			s.Push(r.Pop())
+		}
+		r.Push(tmp)
+	}
+	for r.Len() != 0 {
+		s.Push(r.Pop())
 	}
 }
