@@ -7,21 +7,18 @@ import (
 )
 
 func main() {
-	node1 := &node{}
-	node2 := &node{}
-	node3 := &node{}
-	node4 := &node{}
-	node5 := &node{}
-	node6 := &node{}
+	arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	node := createMinimalBST(arr)
+	showTree(node, 0)
+}
 
-	node1.adjacent = []*node{node2, node4}
-	node4.adjacent = []*node{node1, node6}
-	node3.adjacent = []*node{node5}
-
-	g := &graph{
-		nodes: []*node{node1, node2, node3, node4, node5, node6},
+func showTree(node *treeNode, depth int) {
+	if node == nil {
+		return
 	}
-	fmt.Println(search(g, node1, node6))
+	showTree(node.left, depth+1)
+	fmt.Printf("value: %v, depth: %v \n", node.value, depth)
+	showTree(node.right, depth+1)
 }
 
 type graph struct {
@@ -40,6 +37,12 @@ const (
 	visited
 	visiting
 )
+
+type treeNode struct {
+	value int
+	left  *treeNode
+	right *treeNode
+}
 
 // 4.1 ノード間の経路
 func search(g *graph, start, end *node) bool {
@@ -71,4 +74,20 @@ func search(g *graph, start, end *node) bool {
 		}
 	}
 	return false
+}
+
+// 4.2 最小の木
+func createMinimalBST(arr []int) *treeNode {
+	return createMinimalBSTHelper(arr, 0, len(arr)-1)
+}
+
+func createMinimalBSTHelper(arr []int, start, end int) *treeNode {
+	if end < start {
+		return nil
+	}
+	mid := (start + end) / 2
+	n := &treeNode{value: arr[mid]}
+	n.left = createMinimalBSTHelper(arr, start, mid-1)
+	n.right = createMinimalBSTHelper(arr, mid+1, end)
+	return n
 }
