@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/list"
 	"fmt"
 
 	"github.com/golang-collections/collections/queue"
@@ -10,6 +11,15 @@ func main() {
 	arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	node := createMinimalBST(arr)
 	showTree(node, 0)
+
+	lists := createLevelLinkedList(node)
+	for i, v := range lists {
+		fmt.Printf("---- %v ----\n", i)
+		for elm := v.Front(); elm != nil; elm = elm.Next() {
+			fmt.Printf("%v, ", elm.Value.(*treeNode).value)
+		}
+		fmt.Println("")
+	}
 }
 
 func showTree(node *treeNode, depth int) {
@@ -90,4 +100,26 @@ func createMinimalBSTHelper(arr []int, start, end int) *treeNode {
 	n.left = createMinimalBSTHelper(arr, start, mid-1)
 	n.right = createMinimalBSTHelper(arr, mid+1, end)
 	return n
+}
+
+// 4.3 深さのリスト
+func createLevelLinkedList(root *treeNode) []*list.List {
+	lists := make([]*list.List, 0)
+	return createLevelLinkedListHelper(root, lists, 0)
+}
+
+func createLevelLinkedListHelper(root *treeNode, lists []*list.List, level int) []*list.List {
+	if root == nil {
+		return lists
+	}
+	var l *list.List
+	if len(lists) == level {
+		l = list.New()
+		lists = append(lists, l)
+	} else {
+		l = lists[level]
+	}
+	l.PushBack(root)
+	lists = createLevelLinkedListHelper(root.left, lists, level+1)
+	return createLevelLinkedListHelper(root.right, lists, level+1)
 }
