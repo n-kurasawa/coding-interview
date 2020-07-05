@@ -45,9 +45,10 @@ const (
 )
 
 type treeNode struct {
-	value int
-	left  *treeNode
-	right *treeNode
+	value  int
+	left   *treeNode
+	right  *treeNode
+	parent *treeNode
 }
 
 // 4.1 ノード間の経路
@@ -217,4 +218,32 @@ func checkBST3(root *treeNode, min, max int) bool {
 		return false
 	}
 	return true
+}
+
+// 4.6 次のノード
+func inorderSucc(node *treeNode) *treeNode {
+	if node == nil {
+		return nil
+	}
+	if node.right != nil {
+		return leftMostChild(node.right)
+	} else {
+		q := node
+		x := q.parent
+		for x != nil && x.left != q {
+			q = x
+			x = q.parent
+		}
+		return x
+	}
+}
+
+func leftMostChild(node *treeNode) *treeNode {
+	if node == nil {
+		return nil
+	}
+	for node != nil {
+		node = node.left
+	}
+	return node
 }
