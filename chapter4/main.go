@@ -13,7 +13,9 @@ func main() {
 	arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	node := createMinimalBST(arr)
 	showTree(node, 0)
-	fmt.Println(isBalanced2(node))
+	fmt.Println(checkBST(node))
+	fmt.Println(checkBST2(node, math.MinInt32))
+	fmt.Println(checkBST3(node, math.MinInt32, math.MaxInt32))
 }
 
 func showTree(node *treeNode, depth int) {
@@ -166,4 +168,53 @@ func checkHeight(root *treeNode) (float64, error) {
 	} else {
 		return math.Max(leftHeight, rightHeight) + 1, nil
 	}
+}
+
+// BSTチェック 4.5
+func checkBST(root *treeNode) bool {
+	arr := make([]int, 0)
+	arr = copyBST(root, arr)
+	for i := 1; i < len(arr); i++ {
+		if arr[i] <= arr[i-1] {
+			return false
+		}
+	}
+	return true
+}
+
+func copyBST(root *treeNode, arr []int) []int {
+	if root == nil {
+		return arr
+	}
+	arr = copyBST(root.left, arr)
+	arr = append(arr, root.value)
+	arr = copyBST(root.right, arr)
+	return arr
+}
+
+func checkBST2(root *treeNode, last int) (bool, int) {
+	if root == nil {
+		return true, last
+	}
+	result, last := checkBST2(root.left, last)
+	if !result {
+		return result, last
+	}
+	if root.value < last {
+		return false, last
+	}
+	return checkBST2(root.right, root.value)
+}
+
+func checkBST3(root *treeNode, min, max int) bool {
+	if root == nil {
+		return true
+	}
+	if !checkBST3(root.left, min, root.value) {
+		return false
+	}
+	if !checkBST3(root.right, root.value, max) {
+		return false
+	}
+	return true
 }
