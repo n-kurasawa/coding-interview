@@ -2,7 +2,9 @@ package main
 
 import (
 	"container/list"
+	"errors"
 	"fmt"
+	"math"
 
 	"github.com/golang-collections/collections/queue"
 )
@@ -11,15 +13,7 @@ func main() {
 	arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	node := createMinimalBST(arr)
 	showTree(node, 0)
-
-	lists := createLevelLinkedList(node)
-	for i, v := range lists {
-		fmt.Printf("---- %v ----\n", i)
-		for elm := v.Front(); elm != nil; elm = elm.Next() {
-			fmt.Printf("%v, ", elm.Value.(*treeNode).value)
-		}
-		fmt.Println("")
-	}
+	fmt.Println(isBalanced2(node))
 }
 
 func showTree(node *treeNode, depth int) {
@@ -122,4 +116,54 @@ func createLevelLinkedListHelper(root *treeNode, lists []*list.List, level int) 
 	l.PushBack(root)
 	lists = createLevelLinkedListHelper(root.left, lists, level+1)
 	return createLevelLinkedListHelper(root.right, lists, level+1)
+}
+
+// 4.4
+func isBalanced(root *treeNode) bool {
+	if root == nil {
+		return true
+	}
+	diff := getHeight(root.left) - getHeight(root.right)
+	if math.Abs(diff) > 1 {
+		return false
+	} else {
+		return isBalanced(root.left) && isBalanced(root.right)
+	}
+}
+
+func getHeight(root *treeNode) float64 {
+	if root == nil {
+		return -1
+	}
+	return math.Max(getHeight(root.left), getHeight(root.right)) + 1
+}
+
+func isBalanced2(root *treeNode) bool {
+	if _, err := checkHeight(root); err != nil {
+		return false
+	}
+	return true
+}
+
+var notBalanced = errors.New("not balanced")
+
+func checkHeight(root *treeNode) (float64, error) {
+	if root == nil {
+		return -1, nil
+	}
+	leftHeight, err := checkHeight(root.left)
+	if err != nil {
+		return 0, err
+	}
+	rightHeight, err := checkHeight(root.right)
+	if err != nil {
+		return 0, err
+	}
+
+	diff := leftHeight - rightHeight
+	if math.Abs(diff) > 1 {
+		return 0, notBalanced
+	} else {
+		return math.Max(leftHeight, rightHeight) + 1, nil
+	}
 }
