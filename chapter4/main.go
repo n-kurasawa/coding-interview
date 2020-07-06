@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/golang-collections/collections/stack"
+
 	"github.com/golang-collections/collections/queue"
 )
 
 func main() {
-	arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	node := createMinimalBST(arr)
-	showTree(node, 0)
-	fmt.Println(checkBST(node))
-	fmt.Println(checkBST2(node, math.MinInt32))
-	fmt.Println(checkBST3(node, math.MinInt32, math.MaxInt32))
+	arr := []string{"a", "b", "c", "d", "e", "f"}
+	d := [][]string{{"d", "a"}, {"b", "f"}, {"d", "b"}, {"a", "f"}, {"c", "d"}}
+	fmt.Println(findBuildOrder(arr, d))
+	fmt.Println(findBuildOrder2(arr, d))
 }
 
 func showTree(node *treeNode, depth int) {
@@ -246,4 +246,158 @@ func leftMostChild(node *treeNode) *treeNode {
 		node = node.left
 	}
 	return node
+}
+
+// 4.7 実行順序
+type projectGraph struct {
+	nodes []*project
+	m     map[string]*project
+}
+
+func newProjectGraph(projects []string, dependencies [][]string) *projectGraph {
+	g := &projectGraph{m: map[string]*project{}}
+	for _, v := range projects {
+		g.createNode(v)
+	}
+	for _, v := range dependencies {
+		first := v[0]
+		second := v[1]
+		g.addEdge(second, first)
+	}
+	return g
+}
+
+func (g *projectGraph) createNode(name string) *project {
+	if g.m[name] == nil {
+		p := newProject(name)
+		g.m[name] = p
+		g.nodes = append(g.nodes, p)
+	}
+	return g.m[name]
+}
+
+func (g *projectGraph) addEdge(parent, child string) {
+	p := g.m[parent]
+	c := g.m[child]
+	p.addChild(c)
+}
+
+type project struct {
+	children     []*project
+	m            map[string]*project
+	name         string
+	dependencies int
+	state        state
+}
+
+func newProject(name string) *project {
+	return &project{
+		name:  name,
+		m:     map[string]*project{},
+		state: unvisited,
+	}
+}
+
+func (p *project) String() string {
+	arr := make([]string, len(p.children))
+	for i, v := range p.children {
+		arr[i] = v.name
+	}
+	return fmt.Sprintf("{name: %v, children: %v, dependencies: %v}", p.name, arr, p.dependencies)
+}
+
+func (p *project) addChild(child *project) {
+	if p.m[child.name] == nil {
+		p.children = append(p.children, child)
+		p.m[child.name] = child
+		child.dependencies++
+	}
+}
+
+func findBuildOrder(projects []string, dependencies [][]string) []string {
+	g := newProjectGraph(projects, dependencies)
+	ps := orderProjects(g.nodes)
+	var arr []string
+	for _, v := range ps {
+		arr = append(arr, v.name)
+	}
+	return arr
+}
+
+func orderProjects(projects []*project) []*project {
+	order := make([]*project, len(projects))
+	endOfList := addNonDependent(order, projects, 0)
+
+	var toBeProcessed int
+	for toBeProcessed < len(order) {
+		current := order[toBeProcessed]
+
+		if current == nil {
+			return nil
+		}
+
+		for _, v := range current.children {
+			v.dependencies--
+		}
+
+		endOfList = addNonDependent(order, current.children, endOfList)
+		toBeProcessed++
+	}
+	return order
+}
+
+func addNonDependent(order, projects []*project, offset int) int {
+	for _, v := range projects {
+		if v.dependencies == 0 {
+			order[offset] = v
+			offset++
+		}
+	}
+	return offset
+}
+
+func findBuildOrder2(projects []string, dependencies [][]string) []string {
+	g := newProjectGraph(projects, dependencies)
+	s := orderProjects2(g.nodes)
+	if s == nil {
+		return nil
+	}
+
+	arr := make([]string, s.Len())
+	pro := s.Pop()
+	for i := 0; pro != nil; i++ {
+		arr[i] = pro.(*project).name
+		pro = s.Pop()
+	}
+	return arr
+}
+
+func orderProjects2(projects []*project) *stack.Stack {
+	stk := stack.New()
+	for _, v := range projects {
+		if v.state == unvisited {
+			if !doDFS(v, stk) {
+				return nil
+			}
+		}
+	}
+	return stk
+}
+
+func doDFS(project *project, stk *stack.Stack) bool {
+	if project.state == visiting {
+		return false
+	}
+
+	if project.state == unvisited {
+		project.state = visiting
+		for _, v := range project.children {
+			if !doDFS(v, stk) {
+				return false
+			}
+		}
+		project.state = visited
+		stk.Push(project)
+	}
+	return true
 }
