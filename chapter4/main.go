@@ -401,3 +401,148 @@ func doDFS(project *project, stk *stack.Stack) bool {
 	}
 	return true
 }
+
+// 4.8 最初の共通祖先
+func commonAncestor(p, q *treeNode) *treeNode {
+	delta := depth(p) - depth(q)
+	var first, second *treeNode
+	if delta > 0 {
+		first = q
+		second = p
+	} else {
+		first = p
+		second = q
+	}
+	second = goUpBy(second, int(math.Abs(float64(delta))))
+
+	for first != second && first != nil && second != nil {
+		first = first.parent
+		second = second.parent
+	}
+	if first == nil || second == nil {
+		return nil
+	} else {
+		return first
+	}
+}
+
+func depth(node *treeNode) int {
+	var dep int
+	for node != nil {
+		node = node.parent
+		dep++
+	}
+	return dep
+}
+
+func goUpBy(node *treeNode, delta int) *treeNode {
+	for delta > 0 && node != nil {
+		node = node.parent
+		delta--
+	}
+	return node
+}
+
+func commonAncestor2(root, p, q *treeNode) *treeNode {
+	if !covers(root, p) || !covers(root, q) {
+		return nil
+	} else if covers(p, q) {
+		return p
+	} else if covers(q, p) {
+		return q
+	}
+
+	sibling := getSibling(p)
+	parent := p.parent
+	for !covers(sibling, q) {
+		sibling = getSibling(parent)
+		parent = parent.parent
+	}
+	return parent
+}
+
+func covers(root, node *treeNode) bool {
+	if root == nil {
+		return false
+	}
+	if root == node {
+		return true
+	}
+	return covers(root.left, node) || covers(root.right, node)
+}
+
+func getSibling(node *treeNode) *treeNode {
+	if node == nil || node.parent == nil {
+		return nil
+	}
+	parent := node.parent
+	if parent.left == node {
+		return parent.right
+	} else {
+		return parent.left
+	}
+}
+
+func commonAncestor3(root, p, q *treeNode) *treeNode {
+	if !covers(root, p) || !covers(root, q) {
+		return nil
+	}
+	return ancestorHelper(root, p, q)
+}
+
+func ancestorHelper(root, p, q *treeNode) *treeNode {
+	if root == nil || root == p || root == q {
+		return root
+	}
+
+	pIsLeft := covers(root.left, p)
+	qIsLeft := covers(root.left, q)
+	if pIsLeft != qIsLeft {
+		return root
+	}
+	var childSide *treeNode
+	if pIsLeft {
+		childSide = root.left
+	} else {
+		childSide = root.right
+	}
+	return ancestorHelper(childSide, p, q)
+}
+
+var ancestorError = errors.New("not ancestor")
+
+func commonAncestor4(root, p, q *treeNode) (*treeNode, error) {
+	if root == nil {
+		return nil, ancestorError
+	}
+
+	if root == p && root == q {
+		return root, nil
+	}
+
+	x, xErr := commonAncestor4(root.left, p, q)
+	if x != nil && x != p && x != q {
+		return x, xErr
+	}
+
+	y, yErr := commonAncestor4(root.right, p, q)
+	if y != nil && y != p && y != q {
+		return y, yErr
+	}
+
+	if x != nil && y != nil {
+		return root, nil
+	} else if root == p || root == y {
+		if x != nil || y != nil {
+			return root, nil
+		} else {
+			return root, ancestorError
+		}
+	} else {
+		if x == nil {
+			return y, ancestorError
+		} else {
+			return x, ancestorError
+		}
+	}
+}
