@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/golang-collections/collections/stack"
 
@@ -12,10 +13,10 @@ import (
 )
 
 func main() {
-	arr := []string{"a", "b", "c", "d", "e", "f"}
-	d := [][]string{{"d", "a"}, {"b", "f"}, {"d", "b"}, {"a", "f"}, {"c", "d"}}
-	fmt.Println(findBuildOrder(arr, d))
-	fmt.Println(findBuildOrder2(arr, d))
+	bst := createMinimalBST([]int{1, 2, 3, 4, 5, 6})
+	showTree(bst, 0)
+	result := allSequences(bst)
+	fmt.Println(result)
 }
 
 func showTree(node *treeNode, depth int) {
@@ -49,6 +50,10 @@ type treeNode struct {
 	left   *treeNode
 	right  *treeNode
 	parent *treeNode
+}
+
+func (t *treeNode) String() string {
+	return strconv.Itoa(t.value)
 }
 
 // 4.1 ノード間の経路
@@ -545,4 +550,63 @@ func commonAncestor4(root, p, q *treeNode) (*treeNode, error) {
 			return x, ancestorError
 		}
 	}
+}
+
+// 4.9 BSTを作る配列
+func allSequences(node *treeNode) [][]int {
+	var results [][]int
+	if node == nil {
+		return append(results, []int{})
+	}
+
+	nodes := []int{node.value}
+	leftSEQ := allSequences(node.left)
+	rightSEQ := allSequences(node.right)
+
+	for _, left := range leftSEQ {
+		for _, right := range rightSEQ {
+			waved := waveLists(left, right, nodes, results)
+			results = append(results, waved...)
+		}
+	}
+	return results
+}
+
+func waveLists(first, second, prefix []int, results [][]int) [][]int {
+	if len(first) == 0 || len(second) == 0 {
+		result := make([]int, len(prefix))
+		copy(result, prefix)
+		result = append(result, first...)
+		result = append(result, second...)
+		results = append(results, result)
+		return results
+	}
+
+	headFirst := first[0]
+	first = first[1:]
+	prefix = append(prefix, headFirst)
+	results = waveLists(first, second, prefix, results)
+	prefix = prefix[:len(prefix)-1]
+	first = addFirst(first, headFirst)
+
+	headSecond := second[0]
+	second = second[1:]
+	prefix = append(prefix, headSecond)
+	results = waveLists(first, second, prefix, results)
+	prefix = prefix[:len(prefix)-1]
+	second = addFirst(second, headSecond)
+
+	return results
+}
+
+func addFirst(arr []int, elm int) []int {
+	if len(arr) == 0 {
+		return []int{elm}
+	}
+
+	copied := make([]int, len(arr))
+	copy(copied, arr)
+	copied = append(copied[:1], copied[0:]...)
+	copied[0] = elm
+	return copied
 }
