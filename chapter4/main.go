@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/golang-collections/collections/stack"
 
@@ -13,10 +14,15 @@ import (
 )
 
 func main() {
-	bst := createMinimalBST([]int{1, 2, 3, 4, 5, 6})
-	showTree(bst, 0)
-	result := allSequences(bst)
-	fmt.Println(result)
+	bst := createMinimalBST([]int{1, 2, 3, 4, 5, 6, 7})
+
+	bigTree := &treeNode{
+		value: 100,
+		right: bst,
+	}
+
+	fmt.Println(containsTree(bigTree, bst))
+	fmt.Println(containsTree2(bigTree, bst))
 }
 
 func showTree(node *treeNode, depth int) {
@@ -609,4 +615,57 @@ func addFirst(arr []int, elm int) []int {
 	copied = append(copied[:1], copied[0:]...)
 	copied[0] = elm
 	return copied
+}
+
+// 4.10 部分木チェック
+func containsTree(t1 *treeNode, t2 *treeNode) bool {
+	var strARR1 []string
+	var strARR2 []string
+
+	strARR1 = getOrderString(t1, strARR1)
+	strARR2 = getOrderString(t2, strARR2)
+
+	str1 := strings.Join(strARR1, "")
+	str2 := strings.Join(strARR2, "")
+	return strings.Contains(str1, str2)
+}
+
+func getOrderString(node *treeNode, str []string) []string {
+	if node == nil {
+		str = append(str, "X")
+		return str
+	}
+
+	str = append(str, strconv.Itoa(node.value))
+	str = getOrderString(node.left, str)
+	return getOrderString(node.right, str)
+}
+
+func containsTree2(t1, t2 *treeNode) bool {
+	if t2 == nil {
+		return true
+	}
+	return subTree(t1, t2)
+}
+
+func subTree(t1, t2 *treeNode) bool {
+	if t1 == nil {
+		return false
+	} else if t1.value == t2.value && matchTree(t1, t2) {
+		return true
+	}
+
+	return subTree(t1.left, t2) || subTree(t1.right, t2)
+}
+
+func matchTree(t1, t2 *treeNode) bool {
+	if t1 == nil && t2 == nil {
+		return true
+	} else if t1 == nil || t2 == nil {
+		return false
+	} else if t1.value != t2.value {
+		return false
+	} else {
+		return matchTree(t1.left, t2.left) && matchTree(t1.right, t2.right)
+	}
 }
