@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/golang-collections/collections/stack"
 
@@ -668,4 +670,52 @@ func matchTree(t1, t2 *treeNode) bool {
 	} else {
 		return matchTree(t1.left, t2.left) && matchTree(t1.right, t2.right)
 	}
+}
+
+// 4.11 ランダムノード
+type randomTreeNode struct {
+	data  int
+	left  *randomTreeNode
+	right *randomTreeNode
+	size  int
+}
+
+func newRandomTreeNode(data int) *randomTreeNode {
+	return &randomTreeNode{
+		data: data,
+		size: 1,
+	}
+}
+
+func (n *randomTreeNode) getRandomNode() *randomTreeNode {
+	var leftSize int
+	if n.left != nil {
+		leftSize = n.left.size
+	}
+	rand.Seed(time.Now().UnixNano())
+	index := rand.Intn(n.size)
+	if index < leftSize {
+		return n.left.getRandomNode()
+	} else if index == leftSize {
+		return n
+	} else {
+		return n.right.getRandomNode()
+	}
+}
+
+func (n *randomTreeNode) insertInOrder(data int) {
+	if data <= n.data {
+		if n.left == nil {
+			n.left = newRandomTreeNode(data)
+		} else {
+			n.left.insertInOrder(data)
+		}
+	} else {
+		if n.right == nil {
+			n.right = newRandomTreeNode(data)
+		} else {
+			n.right.insertInOrder(data)
+		}
+	}
+	n.size++
 }
