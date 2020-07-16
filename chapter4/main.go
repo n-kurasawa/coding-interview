@@ -719,3 +719,67 @@ func (n *randomTreeNode) insertInOrder(data int) {
 	}
 	n.size++
 }
+
+// 4.12 合計が等しい経路
+func countPathsWithSum(root *treeNode, targetSum int) int {
+	if root == nil {
+		return 0
+	}
+	pathsFromRoot := countPathsWithSumFromNode(root, targetSum, 0)
+
+	pathsOnLeft := countPathsWithSum(root.left, targetSum)
+	pathsOnRight := countPathsWithSum(root.right, targetSum)
+
+	return pathsFromRoot + pathsOnLeft + pathsOnRight
+
+}
+
+func countPathsWithSumFromNode(node *treeNode, targetSum, currentSum int) int {
+	if node == nil {
+		return 0
+	}
+
+	currentSum += node.value
+
+	var totalPaths int
+	if currentSum == targetSum {
+		totalPaths++
+	}
+
+	totalPaths += countPathsWithSumFromNode(node.left, targetSum, currentSum)
+	totalPaths += countPathsWithSumFromNode(node.right, targetSum, currentSum)
+	return totalPaths
+}
+
+func countPathsWithSum2(root *treeNode, targetSum int) int {
+	return countPathsWithSumHelper(root, targetSum, 0, make(map[int]int, 0))
+}
+
+func countPathsWithSumHelper(node *treeNode, targetSum, runningSum int, pathCount map[int]int) int {
+	if node == nil {
+		return 0
+	}
+	runningSum += node.value
+	sum := runningSum - targetSum
+	totalPaths := pathCount[sum]
+
+	if runningSum == targetSum {
+		totalPaths++
+	}
+
+	incrementHashTable(pathCount, runningSum, 1)
+	totalPaths += countPathsWithSumHelper(node.left, targetSum, runningSum, pathCount)
+	totalPaths += countPathsWithSumHelper(node.right, targetSum, runningSum, pathCount)
+	incrementHashTable(pathCount, runningSum, -1)
+
+	return totalPaths
+}
+
+func incrementHashTable(m map[int]int, key, delta int) {
+	newCount := m[key] + delta
+	if newCount == 0 {
+		delete(m, key)
+	} else {
+		m[key] = newCount
+	}
+}
