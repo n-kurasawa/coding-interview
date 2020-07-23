@@ -2,15 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strconv"
+	"strings"
 )
 
 func main() {
-	n, _ := strconv.ParseInt("11111111", 2, 0)
-	m, _ := strconv.ParseInt("10011", 2, 0)
-	fmt.Printf("%08b\n", n)
-	fmt.Printf("%08b\n", m)
-	fmt.Printf("%08b\n", updateBits(int(n), int(m), 2, 6))
+	fmt.Println(printBinary(0.625))
 }
 
 func getBit(num int, i uint) bool {
@@ -57,4 +53,29 @@ func updateBits(n, m int, i, j uint) int {
 	mShifted := m << i
 
 	return nCleared | mShifted
+}
+
+// 実数の2進数表記
+func printBinary(num float64) string {
+	if num >= 1 || num <= 0 {
+		return "ERROR"
+	}
+
+	binary := make([]string, 0)
+	binary = append(binary, ".")
+
+	for num > 0 {
+		if len(binary) >= 32 {
+			return "ERROR"
+		}
+		r := num * 2
+		if r >= 1 {
+			binary = append(binary, "1")
+			num = r - 1
+		} else {
+			binary = append(binary, "0")
+			num = r
+		}
+	}
+	return strings.Join(binary, "")
 }
